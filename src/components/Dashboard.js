@@ -82,6 +82,8 @@ export default function Dashboard(props) {
     const [operator, setOperator] = useState("");
     const [value, setValue] = useState(0);
 
+    const [showFilter, setShowFilter] = useState(true);
+
     useEffect(() => {
 
         if (request) {
@@ -122,6 +124,7 @@ export default function Dashboard(props) {
         setFilterValue("");
         setOperator("");
         setValue(0);
+        setShowFilter(true);
         setData(dataCopy);
     };
 
@@ -153,6 +156,7 @@ export default function Dashboard(props) {
             }
         }
         setData(dataFilter);
+        setShowFilter(false);
     };
 
     if (redirect) {
@@ -234,6 +238,7 @@ export default function Dashboard(props) {
                                     />
                                 </Grid>
                                 <Grid item xs={2}>
+                                { showFilter ?
                                     <Button
                                         fullWidth
                                         variant="contained"
@@ -242,6 +247,9 @@ export default function Dashboard(props) {
                                     >
                                         Filtrar
                                     </Button>
+                                    :
+                                    null
+                                }
                                 </Grid>
                                 <Grid item xs={2}>
                                     <Button
