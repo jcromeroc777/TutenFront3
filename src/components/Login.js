@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Redirect } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -7,10 +8,14 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { useForm } from "react-hook-form";
 
 import { patternEmail } from './../utils/validations';
+
+import API from './../api/api';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -33,16 +38,40 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function SignIn() {
+export default function Login(props) {
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState(null);
+  const [error, setError] = useState(false);
 
   const { register, setValue, handleSubmit, errors } = useForm();
 
   const onSubmit = (data) => {
     setLoading(true);
-    console.log(data.email, data.password);
+    
+    const headers = {
+      'Accept': 'application/json',
+      'password': data.password,
+      'app': 'APP_BCK'
+    }
+
+    API.put(`/TutenREST/rest/user/testapis%40tuten.cl?email=${data.email}`, null, {
+      headers: headers
+    })
+    .then((response) => {
+      console.log(response.data.sessionTokenBck);
+      props.setToken(response.data.sessionTokenBck);
+      setToken(response.data.sessionTokenBck);
+      setLoading(false);
+      setError(false);
+    }).catch((error) => {
+      setLoading(false);
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
+    });
   };
 
   useEffect(() => {
@@ -61,8 +90,19 @@ export default function SignIn() {
     return () => { isMounted = false };
   }, [register]);
 
+  if (token) {
+    return <Redirect to={{ pathname: '/dashboard', state: { token }}} />
+  }
+  
   return (
     <Container component="main" maxWidth="xs">
+      { error ?
+      <Alert severity="error">
+        <AlertTitle>Error</AlertTitle>
+        Credenciales inválidas
+      </Alert> :
+      null
+      }
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -107,7 +147,7 @@ export default function SignIn() {
             color="primary"
             className={classes.submit}
           >
-            Entrar
+            {loading ? <CircularProgress color="secondary" size="2em"/> : "Entrar"}
           </Button>
         </form>
       </div>

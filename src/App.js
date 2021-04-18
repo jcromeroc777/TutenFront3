@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-dom";
 import Box from '@material-ui/core/Box';
@@ -21,15 +21,16 @@ function Copyright() {
 }
 
 function App() {
+  const [tokenLogin, setTokenLogin] = useState(null);
   return (
       <Router>
         <main>
           <Switch>
             <Route path="/" exact>
-              <Login />
+              <Login setToken={setTokenLogin}/>
             </Route>
             <Route path="/dashboard" exact>
-              <Dashboard />
+              <Dashboard token={tokenLogin} />
             </Route>
             <Redirect to="/" />
           </Switch>
